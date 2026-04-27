@@ -272,6 +272,14 @@ html {
   transform: translateX(0) scale(1);
 }
 
+.testimonial-slide {
+  display: none;
+}
+
+.testimonial-slide.active {
+  display: block;
+}
+
 /* ---- Input Focus Effects ---- */
 .input-field {
   transition: var(--transition-smooth);
@@ -437,6 +445,63 @@ html {
   display: inline-block;
 }
 
+/* ---- Ripple Effect ---- */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(0);
+  animation: ripple-animation 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ---- Back to Top Button ---- */
+#back-to-top {
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition-smooth);
+}
+
+#back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---- Chatbot Styles ---- */
+.chatbot-container {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.chatbot-container.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.chatbot-toggle {
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.chatbot-toggle:hover {
+  transform: scale(1.1);
+}
+
+.chat-message {
+  word-wrap: break-word;
+  animation: slide-in-up 0.3s ease;
+}
+
 /* ---- Responsive Adjustments ---- */
 @media (max-width: 768px) {
   .process-line::before {
@@ -458,4 +523,3 @@ html {
     display: none !important;
   }
 }
-
