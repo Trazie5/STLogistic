@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STLogistic - Solutions logistiques</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="Styles/custom.css">
+<style>
+.social-float{position:fixed;right:20px;bottom:100px;z-index:50;display:flex;flex-direction:column;gap:12px}
+.social-btn{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 15px rgba(0,0,0,.3);transition:all .3s}
+.social-btn:hover{transform:scale(1.1) translateX(-5px)}
+.whatsapp-btn{background:#25d366}.facebook-btn{background:#1877f2}.tiktok-btn{background:#000;border:2px solid #fff}
+.chatbot-container{position:fixed;bottom:90px;right:20px;z-index:50;width:350px;max-height:500px;background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);transform:translateY(120%);transition:all .4s;opacity:0}
+.chatbot-container.open{transform:translateY(0);opacity:1}
+.chatbot-header{background:linear-gradient(135deg,#3b82f6,#06b6d4);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.chatbot-body{padding:16px;height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.chatbot-input{padding:12px 16px;border-top:1px solid #334155;display:flex;gap:8px}
+.chat-message{padding:10px 14px;border-radius:12px;margin-bottom:8px;max-width:80%;font-size:14px}
+.chat-message.bot{background:#334155;color:#fff;align-self:flex-start}
+.chat-message.user{background:#3b82f6;color:#fff;align-self:flex-end;margin-left:auto}
+.chatbot-toggle{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 20px rgba(59,130,246,.4);cursor:pointer;transition:all .3s;position:fixed;bottom:20px;right:20px;z-index:51}
+.chatbot-toggle:hover{transform:scale(1.1)}
+</style>
+</head>
+<body class="bg-slate-900 text-white font-sans antialiased overflow-x-hidden">
+<div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 z-[9999]" style="width:0%"></div>
+<div id="cursor-glow"></div>
+
+<div class="social-float">
+<a href="https://wa.me/22500000000" target="_blank" rel="noopener noreferrer" class="social-btn whatsapp-btn" title="WhatsApp">
+<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+<a href="https://facebook.com/STLogistic" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" title="Facebook">
+<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+</a>
+<a href="https://tiktok.com/@stlogistic" target="_blank" rel="noopener noreferrer" class="social-btn tiktok-btn" title="TikTok">
+<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+</a>
+</div>
+
+<div class="chatbot-toggle" id="chatbot-toggle" onclick="toggleChatbot()">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+</div>
+<div class="chatbot-container" id="chatbot">
+<div class="chatbot-header">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+</div>
+<div>
+<h3 class="font-bold text-white">STLogistic Assistant</h3>
+<p class="text-xs text-blue-100">En ligne</p>
+</div>
+</div>
+<button type="button" onclick="toggleChatbot()" class="text-white hover:text-blue-100 transition" aria-label="Fermer le chatbot">
+<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+</button>
+</div>
+<div class="chatbot-body" id="chatbot-body">
+<div class="chat-message bot">Bonjour ! Je suis l'assistant virtuel de STLogistic. Comment puis-je vous aider aujourd'hui ?</div>
+</div>
+<div class="chatbot-input">
+<input type="text" id="chatbot-message" placeholder="Ecrivez votre message..." class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500">
+<button type="button" onclick="sendChatbotMessage()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 transition" aria-label="Envoyer le message">
+<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+</button>
+</div>
+</div>
+
+<nav id="navbar" class="navbar fixed top-0 left-0 right-0 z-50 py-6 px-6 lg:px-12">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<a href="#hero" class="flex items-center gap-3">
+<img src="images/logo.png" alt="STLogistic Logo" class="h-10 w-auto">
+<span class="text-xl font-bold gradient-text">STLogistic</span>
+</a>
+<div class="hidden lg:flex items-center gap-8">
+<a href="#services" class="nav-link text-gray-300 hover:text-white transition">Services</a>
+<a href="#process" class="nav-link text-gray-300 hover:text-white transition">Processus</a>
+<a href="#about" class="nav-link text-gray-300 hover:text-white transition">A propos</a>
+<a href="#contact" class="nav-link text-gray-300 hover:text-white transition">Contact</a>
+</div>
+<button id="mobile-menu-btn" class="lg:hidden hamburger flex flex-col gap-1.5 p-2" aria-label="Ouvrir le menu">
+<span class="w-6 h-0.5 bg-white block"></span>
+<span class="w-6 h-0.5 bg-white block"></span>
+<span class="w-6 h-0.5 bg-white block"></span>
+</button>
+</div>
+</nav>
+
+<div id="mobile-menu" class="mobile-menu fixed inset-0 z-50 bg-slate-900/98 backdrop-blur-xl flex flex-col items-center justify-center gap-8">
+<button id="mobile-menu-close" class="absolute top-6 right-6 text-white" aria-label="Fermer le menu">
+<svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+</button>
+<a href="#services" class="text-2xl font-semibold text-gray-300 hover:text-white transition">Services</a>
+<a href="#process" class="text-2xl font-semibold text-gray-300 hover:text-white transition">Processus</a>
+<a href="#about" class="text-2xl font-semibold text-gray-300 hover:text-white transition">A propos</a>
+<a href="#contact" class="text-2xl font-semibold text-gray-300 hover:text-white transition">Contact</a>
+</div>
+
+<main>
+<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+<div class="absolute inset-0 z-0">
+<img src="images/background.png" alt="Arriere-plan logistique" class="w-full h-full object-cover opacity-40">
+<div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900"></div>
+<div id="particles" class="particles z-10"></div>
+</div>
+<div class="relative z-20 max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-12 items-center">
+<div class="text-center lg:text-left">
+<h1 class="hero-title text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+Solutions logistiques <span class="gradient-text typing-effect" data-text="intelligentes">intelligentes</span>
+</h1>
+<p class="hero-subtitle text-lg md:text-xl text-gray-400 mb-8 max-w-xl mx-auto lg:mx-0">
+Transport, livraison et gestion de flux optimises pour votre entreprise. Votre succes, notre mission.
+</p>
+<div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+<a href="#contact" class="btn-primary magnetic-btn confetti-btn bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-center">
+Demander un devis
+</a>
+<a href="#services" class="btn-primary magnetic-btn border-2 border-blue-500 text-blue-400 hover:text-white hover:bg-blue-500/10 px-8 py-4 rounded-full font-semibold text-center transition">
+Nos services
+</a>
+</div>
+</div>
+<div class="hero-visual hidden lg:flex justify-center">
+<img src="images/26 avr. 2026, 22_28_43.png" alt="Illustration STLogistic" class="hero-image hero-float rounded-2xl shadow-2xl max-w-md w-full border border-slate-700">
+</div>
+<div class="wave-separator">
+<svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+<path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#0f172a"></path>
+</svg>
+</div>
+</section>
+
+<section id="about" class="py-20 bg-slate-800/50">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="text-center mb-14 reveal">
+<h2 class="text-3xl md:text-4xl font-bold mb-4">Pourquoi choisir <span class="gradient-text">STLogistic</span></h2>
+<p class="text-gray-400 max-w-3xl mx-auto">Une equipe reactive, une flotte moderne et un suivi clair pour vos livraisons locales comme internationales.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div class="stat-item reveal text-center p-6 rounded-2xl bg-slate-800 border border-slate-700">
+<div class="stat-number text-4xl md:text-5xl font-bold mb-2 counter" data-target="1500">0</div>
+<div class="text-gray-400">Livraisons/mois</div>
+</div>
+<div class="stat-item reveal text-center p-6 rounded-2xl bg-slate-800 border border-slate-700 reveal-delay-1">
+<div class="stat-number text-4xl md:text-5xl font-bold mb-2 counter" data-target="98">0</div>
+<div class="text-gray-400">% Satisfaction</div>
+</div>
+<div class="stat-item reveal text-center p-6 rounded-2xl bg-slate-800 border border-slate-700 reveal-delay-2">
+<div class="stat-number text-4xl md:text-5xl font-bold mb-2 counter" data-target="50">0</div>
+<div class="text-gray-400">Vehicules</div>
+</div>
+<div class="stat-item reveal text-center p-6 rounded-2xl bg-slate-800 border border-slate-700 reveal-delay-3">
+<div class="stat-number text-4xl md:text-5xl font-bold mb-2 counter" data-target="12">0</div>
+<div class="text-gray-400">Annees d'experience</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="services" class="py-24">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="text-center mb-16 reveal">
+<h2 class="text-3xl md:text-4xl font-bold mb-4">Nos <span class="gradient-text">services</span></h2>
+<p class="text-gray-400 max-w-2xl mx-auto">Des solutions logistiques completes adaptees a vos besoins specifiques.</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="service-card reveal bg-slate-800 border border-slate-700 rounded-2xl p-8">
+<div class="card-icon w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-400">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Livraison Express</h3>
+<p class="text-gray-400 leading-relaxed">Livraison rapide et securisee de vos colis en 24h/48h partout en Cote d'Ivoire.</p>
+</div>
+<div class="service-card reveal bg-slate-800 border border-slate-700 rounded-2xl p-8 reveal-delay-1">
+<div class="card-icon w-14 h-14 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6 text-cyan-400">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Transport de marchandises</h3>
+<p class="text-gray-400 leading-relaxed">Transport de vos marchandises en vrac ou en conteneurs avec une flotte moderne.</p>
+</div>
+<div class="service-card reveal bg-slate-800 border border-slate-700 rounded-2xl p-8 reveal-delay-2">
+<div class="card-icon w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 text-purple-400">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Stockage et entreposage</h3>
+<p class="text-gray-400 leading-relaxed">Solutions de stockage securisees avec gestion d'inventaire en temps reel.</p>
+</div>
+<div class="service-card reveal bg-slate-800 border border-slate-700 rounded-2xl p-8 reveal-delay-3">
+<div class="card-icon w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center mb-6 text-green-400">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">E-commerce logistique</h3>
+<p class="text-gray-400 leading-relaxed">Gestion complete de la logistique pour votre boutique en ligne.</p>
+</div>
+<div class="service-card reveal bg-slate-800 border border-slate-700 rounded-2xl p-8">
+<div class="card-icon w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6 text-orange-400">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Logistique internationale</h3>
+<p class="text-gray-400 leading-relaxed">Import/export avec dedouanement et transport multimodal.</p>
+</div>
+<div class="service-card reveal bg-slate-800 border border-slate-700 rounded-2xl p-8 reveal-delay-1">
+<div class="card-icon w-14 h-14 rounded-xl bg-pink-500/10 flex items-center justify-center mb-6 text-pink-400">
+<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Suivi en temps reel</h3>
+<p class="text-gray-400 leading-relaxed">Localisation GPS et notifications en temps reel pour chaque livraison.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section id="process" class="py-24 bg-slate-800/30">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="text-center mb-16 reveal">
+<h2 class="text-3xl md:text-4xl font-bold mb-4">Notre <span class="gradient-text">processus</span></h2>
+<p class="text-gray-400 max-w-2xl mx-auto">Un workflow optimise pour une efficacite maximale.</p>
+</div>
+<div class="process-line relative max-w-4xl mx-auto">
+<div class="space-y-16">
+<div class="process-step reveal flex flex-col md:flex-row items-center gap-8">
+<div class="process-number w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0">1</div>
+<div class="text-center md:text-left">
+<h3 class="text-xl font-bold mb-2">Demande de devis</h3>
+<p class="text-gray-400">Contactez-nous et recevez un devis gratuit sous 24h adapte a vos besoins.</p>
+</div>
+</div>
+<div class="process-step reveal flex flex-col md:flex-row-reverse items-center gap-8">
+<div class="process-number w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0">2</div>
+<div class="text-center md:text-right">
+<h3 class="text-xl font-bold mb-2">Planification</h3>
+<p class="text-gray-400">Nous organisons le transport optimal avec suivi en temps reel.</p>
+</div>
+</div>
+<div class="process-step reveal flex flex-col md:flex-row items-center gap-8">
+<div class="process-number w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0">3</div>
+<div class="text-center md:text-left">
+<h3 class="text-xl font-bold mb-2">Execution</h3>
+<p class="text-gray-400">Livraison rapide et securisee par nos equipes professionnelles.</p>
+</div>
+</div>
+<div class="process-step reveal flex flex-col md:flex-row-reverse items-center gap-8">
+<div class="process-number w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0">4</div>
+<div class="text-center md:text-right">
+<h3 class="text-xl font-bold mb-2">Confirmation</h3>
+<p class="text-gray-400">Recevez une confirmation de livraison avec preuve de reception.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="py-24">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="text-center mb-16 reveal">
+<h2 class="text-3xl md:text-4xl font-bold mb-4">Ils nous font <span class="gradient-text">confiance</span></h2>
+<p class="text-gray-400 max-w-2xl mx-auto">Decouvrez les temoignages de nos clients satisfaits.</p>
+</div>
+<div class="relative max-w-4xl mx-auto">
+<div class="overflow-hidden relative min-h-[260px]">
+<div class="testimonial-slide absolute inset-0 flex flex-col items-center text-center p-8">
+<div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-3xl font-bold mb-6">AK</div>
+<p class="text-lg text-gray-300 mb-6 italic">"STLogistic a transforme notre chaine logistique. Livraisons toujours a l'heure et service client impeccable !"</p>
+<h4 class="font-bold text-white">Amara Kone</h4>
+<p class="text-gray-500 text-sm">Directeur commercial, Abidjan</p>
+</div>
+<div class="testimonial-slide absolute inset-0 flex flex-col items-center text-center p-8">
+<div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl font-bold mb-6">FD</div>
+<p class="text-lg text-gray-300 mb-6 italic">"Un partenaire fiable pour notre e-commerce. Le suivi en temps reel est un vrai plus pour nos clients."</p>
+<h4 class="font-bold text-white">Fatou Diallo</h4>
+<p class="text-gray-500 text-sm">Fondatrice, Boutique en ligne</p>
+</div>
+<div class="testimonial-slide absolute inset-0 flex flex-col items-center text-center p-8">
+<div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-3xl font-bold mb-6">YO</div>
+<p class="text-lg text-gray-300 mb-6 italic">"Professionnalisme et reactivite. Je recommande vivement STLogistic pour tous vos transports."</p>
+<h4 class="font-bold text-white">Yves Olivier</h4>
+<p class="text-gray-500 text-sm">CEO, Import-Export CI</p>
+</div>
+</div>
+<div class="flex items-center justify-center gap-4 mt-8">
+<button id="prev-testimonial" class="w-12 h-12 rounded-full border border-slate-600 flex items-center justify-center hover:border-blue-500 hover:text-blue-400 transition" aria-label="Temoignage precedent">
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+</button>
+<div class="flex gap-2">
+<button class="testimonial-dot w-3 h-3 rounded-full bg-blue-500" aria-label="Temoignage 1"></button>
+<button class="testimonial-dot w-3 h-3 rounded-full bg-slate-600" aria-label="Temoignage 2"></button>
+<button class="testimonial-dot w-3 h-3 rounded-full bg-slate-600" aria-label="Temoignage 3"></button>
+</div>
+<button id="next-testimonial" class="w-12 h-12 rounded-full border border-slate-600 flex items-center justify-center hover:border-blue-500 hover:text-blue-400 transition" aria-label="Temoignage suivant">
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+</button>
+</div>
+</div>
+</div>
+</section>
+
+<section id="contact" class="py-24 bg-slate-800/30">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="text-center mb-16 reveal">
+<h2 class="text-3xl md:text-4xl font-bold mb-4">Contactez-<span class="gradient-text">nous</span></h2>
+<p class="text-gray-400 max-w-2xl mx-auto">Pret a optimiser votre logistique ? Discutons de votre projet.</p>
+</div>
+<div class="grid lg:grid-cols-2 gap-12">
+<div class="reveal">
+<form id="contact-form" class="space-y-6">
+<div class="grid md:grid-cols-2 gap-6">
+<div>
+<label for="name" class="block text-sm font-medium text-gray-400 mb-2">Nom</label>
+<input id="name" type="text" class="input-field w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none" placeholder="Votre nom" required>
+</div>
+<div>
+<label for="email" class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+<input id="email" type="email" class="input-field w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none" placeholder="votre@email.com" required>
+</div>
+</div>
+<div>
+<label for="phone" class="block text-sm font-medium text-gray-400 mb-2">Telephone</label>
+<input id="phone" type="tel" class="input-field w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none" placeholder="+225 00 00 00 00 00">
+</div>
+<div>
+<label for="service" class="block text-sm font-medium text-gray-400 mb-2">Service souhaite</label>
+<select id="service" class="input-field w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none">
+<option>Livraison Express</option>
+<option>Transport de marchandises</option>
+<option>Stockage et entreposage</option>
+<option>Logistique internationale</option>
+<option>Suivi en temps reel</option>
+</select>
+</div>
+<div>
+<label for="message" class="block text-sm font-medium text-gray-400 mb-2">Message</label>
+<textarea id="message" rows="6" class="input-field w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none" placeholder="Parlez-nous de votre besoin logistique..." required></textarea>
+</div>
+<button type="submit" class="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold transition">
+Envoyer le message
+</button>
+</form>
+</div>
+<div class="space-y-6 reveal reveal-delay-1">
+<div class="bg-slate-800 border border-slate-700 rounded-2xl p-8">
+<h3 class="text-2xl font-bold mb-4">Nos coordonnees</h3>
+<div class="space-y-4 text-gray-300">
+<p><strong class="text-white">Adresse :</strong> Abidjan, Cote d'Ivoire</p>
+<p><strong class="text-white">Telephone :</strong> +225 00 00 00 00 00</p>
+<p><strong class="text-white">Email :</strong> contact@stlogistic.ci</p>
+<p><strong class="text-white">Horaires :</strong> Lun - Sam, 8h00 - 18h00</p>
+</div>
+</div>
+<div class="bg-slate-800 border border-slate-700 rounded-2xl p-8">
+<h3 class="text-xl font-bold mb-4">Recevoir nos actualites</h3>
+<p class="text-gray-400 mb-6">Inscrivez-vous pour recevoir des conseils logistiques et nos nouveautes.</p>
+<form id="newsletter-form" class="flex flex-col sm:flex-row gap-3">
+<input type="email" class="input-field flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none" placeholder="Votre email" required>
+<button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-semibold px-6 py-3 rounded-lg transition">
+S'inscrire
+</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="border-t border-slate-800">
+<div class="max-w-7xl mx-auto px-6 lg:px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+<p class="text-gray-500 text-sm">&copy; 2026 STLogistic. Tous droits reserves.</p>
+<div class="flex items-center gap-6 text-sm text-gray-400">
+<a href="#services" class="hover:text-white transition">Services</a>
+<a href="#about" class="hover:text-white transition">A propos</a>
+<a href="#contact" class="hover:text-white transition">Contact</a>
+</div>
+</div>
+</footer>
+
+<button id="back-to-top" type="button" aria-label="Retour en haut">
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+</button>
+
+<script src="Scripts/main.js"></script>
+</body>
+</html>
