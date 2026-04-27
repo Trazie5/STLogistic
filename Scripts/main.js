@@ -73,6 +73,53 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ========================================
+    // Chatbot Functions
+    // ========================================
+    window.toggleChatbot = function() {
+        const chatbot = document.getElementById('chatbot');
+        if (chatbot) {
+            chatbot.classList.toggle('open');
+        }
+    };
+
+    window.sendMessage = function() {
+        const chatInput = document.getElementById('chat-input');
+        const chatbotBody = document.getElementById('chatbot-body');
+        const message = chatInput.value.trim();
+
+        if (!message) return;
+
+        // Add user message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-message user';
+        userMsg.textContent = message;
+        chatbotBody.appendChild(userMsg);
+        chatInput.value = '';
+
+        // Scroll to bottom
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+
+        // Simulate bot response
+        setTimeout(() => {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chat-message bot';
+            botMsg.textContent = 'Merci pour votre message! Notre équipe vous répondra dans les plus brefs délais.';
+            chatbotBody.appendChild(botMsg);
+            chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        }, 500);
+    };
+
+    // Handle Enter key in chatbot input
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                window.sendMessage();
+            }
+        });
+    }
+
+    // ========================================
     // Scroll Reveal Animation
     // ========================================
     const revealElements = document.querySelectorAll('.reveal');
@@ -140,70 +187,68 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSlide = 0;
     let autoSlideInterval;
 
-    function showSlide(index) {
-        testimonialSlides.forEach((slide, i) => {
-            slide.style.opacity = '0';
-            slide.style.transform = 'translateX(50px)';
-            slide.style.position = 'absolute';
-            slide.style.transition = 'all 0.5s ease';
-            
-            setTimeout(() => {
+    if (testimonialSlides.length > 0) {
+        function showSlide(index) {
+            testimonialSlides.forEach((slide, i) => {
+                slide.classList.remove('active');
                 if (i === index) {
-                    slide.style.position = 'relative';
-                    slide.style.opacity = '1';
-                    slide.style.transform = 'translateX(0)';
+                    slide.classList.add('active');
                 }
-            }, 50);
-        });
+            });
 
-        testimonialDots.forEach((dot, i) => {
-            dot.classList.toggle('bg-blue-500', i === index);
-            dot.classList.toggle('bg-slate-600', i !== index);
-        });
-    }
+            testimonialDots.forEach((dot, i) => {
+                dot.classList.toggle('bg-blue-500', i === index);
+                dot.classList.toggle('bg-slate-600', i !== index);
+            });
+        }
 
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % testimonialSlides.length;
-        showSlide(currentSlide);
-    }
-
-    function prevSlide() {
-        currentSlide = (currentSlide - 1 + testimonialSlides.length) % testimonialSlides.length;
-        showSlide(currentSlide);
-    }
-
-    function startAutoSlide() {
-        autoSlideInterval = setInterval(nextSlide, 5000);
-    }
-
-    function stopAutoSlide() {
-        clearInterval(autoSlideInterval);
-    }
-
-    nextBtn.addEventListener('click', () => {
-        stopAutoSlide();
-        nextSlide();
-        startAutoSlide();
-    });
-
-    prevBtn.addEventListener('click', () => {
-        stopAutoSlide();
-        prevSlide();
-        startAutoSlide();
-    });
-
-    testimonialDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            stopAutoSlide();
-            currentSlide = index;
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % testimonialSlides.length;
             showSlide(currentSlide);
-            startAutoSlide();
-        });
-    });
+        }
 
-    // Initialize first slide
-    showSlide(0);
-    startAutoSlide();
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + testimonialSlides.length) % testimonialSlides.length;
+            showSlide(currentSlide);
+        }
+
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                stopAutoSlide();
+                nextSlide();
+                startAutoSlide();
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                stopAutoSlide();
+                prevSlide();
+                startAutoSlide();
+            });
+        }
+
+        testimonialDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                stopAutoSlide();
+                currentSlide = index;
+                showSlide(currentSlide);
+                startAutoSlide();
+            });
+        });
+
+        // Initialize first slide
+        showSlide(0);
+        startAutoSlide();
+    }
 
     // ========================================
     // Smooth Scroll for Anchor Links
@@ -243,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
     // Parallax Effect for Hero
     // ========================================
-    const heroSection = document.getElementById('hero');
+    const heroSection = document.getElementById('accueil');
     const heroImage = document.querySelector('.hero-image');
 
     if (heroSection && heroImage) {
@@ -670,4 +715,3 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('loaded');
     });
 });
-
